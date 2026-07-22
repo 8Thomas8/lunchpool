@@ -66,10 +66,13 @@ this route returns a connection error — expected until the database is configu
 - `master` — production branch, deployed by Vercel
 - `develop` — integration branch: everything validated and ready to ship
 - Feature work goes through branches/PRs targeting `develop` (CI runs lint + typecheck)
+- Feature PRs are **squash-merged** into `develop`; release PRs are **merge-committed**
+  into `master` so both branches share the same history (enforced by branch rulesets)
 
 To release: GitHub → **Actions** → **release** → *Run workflow*, enter a version (e.g. `1.2.0`).
-The workflow merges `develop` into `master`, tags `v1.2.0` and creates a GitHub Release with
-generated notes. Vercel then deploys `master` to production automatically.
+The workflow opens a PR from `develop` to `master`, waits for CI, merges it, tags `v1.2.0`
+and creates a GitHub Release with generated notes. Vercel then deploys `master` to
+production automatically.
 
 ## Deployment (Vercel)
 
