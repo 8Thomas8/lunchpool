@@ -1,0 +1,49 @@
+name: release
+
+# Manually triggered from the GitHub "Actions" tab: merges develop into master,
+# tags the merge commit and creates a GitHub Release. Vercel then deploys master
+# to production automatically (Git integration, no deploy step needed here).
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version (e.g. 1.2.0, without the "v" prefix)'
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Validate version format
+        run: |
+          if [[ ! "${{ inputs.version }}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Invalid version '${{ inputs.version }}' — expected semver like 1.2.0"
+            exit 1
+          fi
+
+      - name: Checkout master
+        uses: actions/checkout@v7
+        with:
+          ref: master
+          fetch-depth: 0
+
+      - name: Merge develop into master
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git merge --no-ff origin/develop -m "release: v${{ inputs.version }}"
+          git push origin master
+
+      - name: Create tag and GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "v${{ inputs.version }}" \
+            --target master \
+            --title "v${{ inputs.version }}" \
+            --generate-notes
