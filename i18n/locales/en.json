@@ -1,0 +1,17 @@
+{
+  "app": {
+    "name": "LunchPool"
+  },
+  "seo": {
+    "title": "LunchPool — Group lunch ordering",
+    "description": "Group lunch ordering: create an order, share the link, everyone adds their items."
+  },
+  "a11y": {
+    "skipToContent": "Skip to main content"
+  },
+  "header": {
+    "home": "LunchPool home",
+    "themeToggle": "Toggle theme",
+    "languageSwitcher": "Language selection"
+  }
+}

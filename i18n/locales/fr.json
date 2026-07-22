@@ -1,5 +1,17 @@
 {
   "app": {
     "name": "LunchPool"
+  },
+  "seo": {
+    "title": "LunchPool — Commande groupée pour le repas de midi",
+    "description": "Commande groupée pour le repas de midi : créez une commande, partagez le lien, chacun ajoute ses articles."
+  },
+  "a11y": {
+    "skipToContent": "Aller au contenu principal"
+  },
+  "header": {
+    "home": "Accueil LunchPool",
+    "themeToggle": "Changer de thème",
+    "languageSwitcher": "Choix de la langue"
   }
 }

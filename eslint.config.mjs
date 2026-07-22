@@ -2,5 +2,10 @@
 import withNuxt from './.nuxt/eslint.config.mjs'
 
 export default withNuxt(
-  // Your custom configs here
+  {
+    rules: {
+      'func-style': ['error', 'expression'],
+      'prefer-arrow-callback': 'error'
+    }
+  }
 )
