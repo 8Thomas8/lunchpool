@@ -1,5 +1,6 @@
 allowBuilds:
   '@parcel/watcher': false
+  'simple-git-hooks': true
   '@tailwindcss/oxide': false
   esbuild: false
   unrs-resolver: false
