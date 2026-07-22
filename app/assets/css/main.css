@@ -16,3 +16,24 @@
   --color-green-900: #0A5331;
   --color-green-950: #052E16;
 }
+
+:root {
+  --ui-bg: #f6f7f9;
+  --lp-card: #ffffff;
+  --lp-gradient: linear-gradient(135deg, #00c56f, #0ea5a5);
+}
+
+.dark {
+  --ui-bg: #050810;
+  --lp-card: #101623;
+}
+
+body {
+  background-color: var(--ui-bg);
+  background-image: radial-gradient(
+    1100px 380px at 50% -8%,
+    color-mix(in srgb, var(--ui-primary) 13%, transparent),
+    transparent
+  );
+  background-repeat: no-repeat;
+}

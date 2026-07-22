@@ -35,9 +35,11 @@ export default defineNuxtConfig({
   },
 
   i18n: {
+    baseUrl: 'https://lunchpool.vercel.app',
     defaultLocale: 'fr',
     locales: [
-      { code: 'fr', name: 'Français', file: 'fr.json' }
+      { code: 'fr', language: 'fr-FR', name: 'Français', file: 'fr.json' },
+      { code: 'en', language: 'en-US', name: 'English', file: 'en.json' }
     ]
   }
 })
