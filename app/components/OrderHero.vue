@@ -28,6 +28,8 @@ const countdown = computed(() => {
 
   return `${hours}:${pad(minutes)}:${pad(seconds)}`
 })
+
+const countdownLabel = computed(() => countdown.value ?? t('hero.expired'))
 </script>
 
 <template>
@@ -58,9 +60,10 @@ const countdown = computed(() => {
             <ClientOnly>
               <span
                 role="timer"
-                aria-live="off"
                 class="tabular-nums"
-              >{{ countdown ?? t('hero.expired') }}</span>
+              >
+                {{ countdownLabel }}
+              </span>
               <template #fallback>
                 <span class="tabular-nums">--:--:--</span>
               </template>
