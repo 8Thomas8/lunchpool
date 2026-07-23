@@ -5,10 +5,10 @@
       <stop offset="1" stop-color="#0ea5a5"/>
     </linearGradient>
     <filter id="lp-logo-shadow" x="-50%" y="-50%" width="200%" height="200%">
-      <feDropShadow dx="0" dy="6" stdDeviation="8" flood-color="#00b96b" flood-opacity="0.35"/>
+      <feDropShadow dx="0" dy="6" stdDeviation="8" flood-color="#00b96b" flood-opacity="0.13"/>
     </filter>
   </defs>
-  <rect width="48" height="48" rx="13" fill="url(#lp-logo-grad)" filter="url(#lp-logo-shadow)"/>
+  <rect width="48" height="48" rx="12" fill="url(#lp-logo-grad)" filter="url(#lp-logo-shadow)"/>
   <g transform="translate(7 7) scale(0.7083)" fill="none">
     <path d="M18 12.5c-2.4-1.5-2.2-4.6.5-6.3" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/>
     <path d="M30 12.5c2.4-1.5 2.2-4.6-.5-6.3" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/>
