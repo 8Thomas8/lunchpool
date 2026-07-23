@@ -1,10 +1,11 @@
 <script setup lang="ts">
-const { t } = useI18n()
+// Placeholder until the order API returns a real code and its expiry.
+const shareUrl = 'https://lunchpool.vercel.app/o/a1b2c3'
 </script>
 
 <template>
-  <UPageHero
-    :title="t('home.title')"
-    :description="t('home.description')"
+  <OrderHero
+    :share-url="shareUrl"
+    :presence="4"
   />
 </template>

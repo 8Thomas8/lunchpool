@@ -6,9 +6,16 @@
     "title": "LunchPool — Group lunch ordering",
     "description": "Group lunch ordering: create an order, share the link, everyone adds their items."
   },
-  "home": {
+  "hero": {
     "title": "Who’s eating what today?",
-    "description": "Add your dish, grab a colleague’s, LunchPool counts for you."
+    "subtitle": "Add your dish, grab a colleague’s, LunchPool counts for you.",
+    "expiresLabel": "Link expires in",
+    "expired": "Link expired",
+    "presence": "{count} person | {count} people",
+    "presenceTitle": "People currently on the page",
+    "shareTitle": "Share link",
+    "copy": "Copy",
+    "copied": "Copied!"
   },
   "a11y": {
     "skipToContent": "Skip to main content"
