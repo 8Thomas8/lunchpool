@@ -2,30 +2,49 @@
 @import "@nuxt/ui";
 
 @theme static {
-  --font-sans: 'Public Sans', sans-serif;
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
 
-  --color-green-50: #EFFDF5;
-  --color-green-100: #D9FBE8;
-  --color-green-200: #B3F5D1;
-  --color-green-300: #75EDAE;
-  --color-green-400: #00DC82;
-  --color-green-500: #00C16A;
-  --color-green-600: #00A155;
-  --color-green-700: #007F45;
-  --color-green-800: #016538;
-  --color-green-900: #0A5331;
-  --color-green-950: #052E16;
+  --color-green-50: #ECFDF4;
+  --color-green-100: #D2FAE4;
+  --color-green-200: #A8F3CD;
+  --color-green-300: #6EE7B0;
+  --color-green-400: #26D38B;
+  --color-green-500: #00B96B;
+  --color-green-600: #009F5C;
+  --color-green-700: #007F4A;
+  --color-green-800: #01653C;
+  --color-green-900: #075332;
+  --color-green-950: #002E1C;
 }
 
 :root {
+  --ui-primary: var(--color-green-500);
   --ui-bg: #f6f7f9;
+  --ui-bg-elevated: #f4f5f7;
+  --ui-bg-accented: #e5e7eb;
+  --ui-border: #e5e7eb;
+  --ui-text-muted: #64748b;
+  --ui-text-highlighted: #0f172a;
+
+  --lp-primary-hover: var(--color-green-600);
   --lp-card: #ffffff;
+  --lp-input: #ffffff;
+  --lp-shadow: 0 1px 3px rgb(0 0 0 / 0.06);
   --lp-gradient: linear-gradient(135deg, #00c56f, #0ea5a5);
 }
 
 .dark {
+  --ui-primary: var(--color-green-500);
   --ui-bg: #050810;
+  --ui-bg-elevated: #1a2333;
+  --ui-bg-accented: #1e293b;
+  --ui-border: #1e293b;
+  --ui-text-muted: #94a3b8;
+  --ui-text-highlighted: #f1f5f9;
+
   --lp-card: #101623;
+  --lp-input: #0b111c;
+  --lp-shadow: 0 2px 8px rgb(0 0 0 / 0.4);
 }
 
 body {

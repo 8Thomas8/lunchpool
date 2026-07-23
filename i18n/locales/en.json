@@ -6,6 +6,10 @@
     "title": "LunchPool — Group lunch ordering",
     "description": "Group lunch ordering: create an order, share the link, everyone adds their items."
   },
+  "home": {
+    "title": "Who’s eating what today?",
+    "description": "Add your dish, grab a colleague’s, LunchPool counts for you."
+  },
   "a11y": {
     "skipToContent": "Skip to main content"
   },

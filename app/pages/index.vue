@@ -1,6 +1,10 @@
+<script setup lang="ts">
+const { t } = useI18n()
+</script>
+
 <template>
   <UPageHero
-    title="LunchPool"
-    description="Commande groupée pour le repas de midi. Les écrans arrivent bientôt."
+    :title="t('home.title')"
+    :description="t('home.description')"
   />
 </template>
