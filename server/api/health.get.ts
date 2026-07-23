@@ -1,4 +1,5 @@
-import { redis, ORDER_TTL_SECONDS } from '../utils/redis'
+import { redis } from '../utils/redis'
+import { ORDER_TTL_SECONDS } from '#shared/utils/order'
 
 // Smoke-test route: writes a key with a TTL then reads it back, to prove that
 // Redis + the 6-hour expiration work end to end. Not business logic.

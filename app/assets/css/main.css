@@ -27,10 +27,18 @@
   --ui-text-highlighted: #0f172a;
 
   --lp-primary-hover: var(--color-green-600);
+  --lp-primary-soft: color-mix(in srgb, var(--ui-primary) 13%, transparent);
+  --lp-glow: color-mix(in srgb, var(--ui-primary) 22%, transparent);
+  --lp-primary-strong: color-mix(in srgb, var(--ui-primary) 60%, transparent);
+  --lp-ring: color-mix(in srgb, var(--ui-primary) 19%, transparent);
   --lp-card: #ffffff;
   --lp-input: #ffffff;
   --lp-shadow: 0 1px 3px rgb(0 0 0 / 0.06);
+  --lp-shadow-hero: 0 18px 40px -18px var(--lp-primary-strong);
   --lp-gradient: linear-gradient(135deg, #00c56f, #0ea5a5);
+  /* Darker variant for surfaces carrying white text: the brand gradient only
+     reaches 2.3:1 against white, below the 4.5:1 required by WCAG AA. */
+  --lp-gradient-surface: linear-gradient(135deg, #00884d, #0b8484);
 }
 
 .dark {
@@ -50,8 +58,8 @@
 body {
   background-color: var(--ui-bg);
   background-image: radial-gradient(
-    1100px 380px at 50% -8%,
-    color-mix(in srgb, var(--ui-primary) 13%, transparent),
+    1400px 560px at 50% -4%,
+    var(--lp-glow),
     transparent
   );
   background-repeat: no-repeat;

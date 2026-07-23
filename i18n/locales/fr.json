@@ -6,9 +6,16 @@
     "title": "LunchPool — Commande groupée pour le repas de midi",
     "description": "Commande groupée pour le repas de midi : créez une commande, partagez le lien, chacun ajoute ses articles."
   },
-  "home": {
+  "hero": {
     "title": "Qui mange quoi aujourd’hui ?",
-    "description": "Ajoute ton plat, pique celui d’un collègue, LunchPool compte pour toi."
+    "subtitle": "Ajoute ton plat, pique celui d’un collègue, LunchPool compte pour toi.",
+    "expiresLabel": "Expiration du lien",
+    "expired": "Lien expiré",
+    "presence": "{count} personne | {count} personnes",
+    "presenceTitle": "Personnes actuellement sur la page",
+    "shareTitle": "Lien de partage",
+    "copy": "Copier",
+    "copied": "Copié !"
   },
   "a11y": {
     "skipToContent": "Aller au contenu principal"
