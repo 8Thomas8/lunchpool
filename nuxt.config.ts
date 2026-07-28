@@ -8,6 +8,10 @@ export default defineNuxtConfig({
     '@nuxtjs/i18n'
   ],
 
+  imports: {
+    dirs: ['constants']
+  },
+
   devtools: {
     enabled: true
   },
