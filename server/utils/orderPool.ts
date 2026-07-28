@@ -9,7 +9,15 @@ export const orderDraftSchema = z.object({
   cat: z.enum(ORDER_CATEGORIES).default(DEFAULT_ORDER_CATEGORY)
 })
 
+type OrderPoolMeta = Omit<OrderPool, 'entries'>
+
 const poolKey = (code: string) => `pool:${code}`
+
+const entriesKey = (code: string) => `pool:${code}:entries`
+
+const deadline = (pool: OrderPoolMeta) => Math.ceil(pool.expiresAt / 1000)
+
+const byCreation = (a: OrderEntry, b: OrderEntry) => a.createdAt - b.createdAt || a.id.localeCompare(b.id)
 
 const createOrderEntry = (draft: OrderDraft): OrderEntry => ({
   id: crypto.randomUUID(),
@@ -22,52 +30,53 @@ export const generateOrderCode = () => Array.from(
   byte => ORDER_CODE_ALPHABET[byte & 31]
 ).join('')
 
-export const persistOrderPool = async (pool: OrderPool) => {
-  await redis.set(poolKey(pool.code), pool, { exat: Math.ceil(pool.expiresAt / 1000) })
-}
-
 export const createOrderPool = async () => {
   const createdAt = Date.now()
-  const pool: OrderPool = {
+  const meta: OrderPoolMeta = {
     code: generateOrderCode(),
     createdAt,
-    expiresAt: createdAt + ORDER_TTL_MS,
-    entries: []
+    expiresAt: createdAt + ORDER_TTL_MS
   }
 
-  await persistOrderPool(pool)
+  await redis.set(poolKey(meta.code), meta, { exat: deadline(meta) })
+
+  const pool: OrderPool = { ...meta, entries: [] }
 
   return pool
 }
 
-export const deleteOrderPool = async (code: string) => await redis.del(poolKey(code))
+export const deleteOrderPool = async (code: string) => await redis.del(poolKey(code), entriesKey(code))
 
-export const requireOrderPool = async (code: string) => {
-  const pool = await redis.get<OrderPool>(poolKey(code))
+export const requireOrderPool = async (code: string): Promise<OrderPool> => {
+  const [meta, entries] = await redis.pipeline()
+    .get<OrderPoolMeta>(poolKey(code))
+    .hgetall<Record<string, OrderEntry>>(entriesKey(code))
+    .exec<[OrderPoolMeta | null, Record<string, OrderEntry> | null]>()
 
-  if (!pool) {
+  if (!meta) {
     throw createError({ statusCode: 404, statusMessage: 'Order not found or expired' })
   }
 
-  return pool
+  return { ...meta, entries: Object.values(entries ?? {}).sort(byCreation) }
 }
 
 export const addOrderEntry = async (pool: OrderPool, draft: OrderDraft) => {
-  pool.entries.push(createOrderEntry(draft))
-  await persistOrderPool(pool)
+  const entry = createOrderEntry(draft)
 
-  return pool
+  await redis.pipeline()
+    .hset(entriesKey(pool.code), { [entry.id]: entry })
+    .expireat(entriesKey(pool.code), deadline(pool))
+    .exec()
+
+  return { ...pool, entries: [...pool.entries, entry].sort(byCreation) }
 }
 
 export const removeOrderEntry = async (pool: OrderPool, id: string) => {
-  const remaining = pool.entries.filter(entry => entry.id !== id)
+  const removed = await redis.hdel(entriesKey(pool.code), id)
 
-  if (remaining.length === pool.entries.length) {
+  if (!removed) {
     throw createError({ statusCode: 404, statusMessage: 'Entry not found' })
   }
 
-  pool.entries = remaining
-  await persistOrderPool(pool)
-
-  return pool
+  return { ...pool, entries: pool.entries.filter(entry => entry.id !== id) }
 }

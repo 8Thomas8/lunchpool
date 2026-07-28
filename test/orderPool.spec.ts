@@ -5,21 +5,50 @@ import {
   createOrderPool,
   generateOrderCode,
   orderDraftSchema,
-  persistOrderPool,
   removeOrderEntry,
   requireOrderPool
 } from '../server/utils/orderPool'
 import { redis } from '../server/utils/redis'
 
+const pipeline = {
+  get: vi.fn(),
+  hgetall: vi.fn(),
+  hset: vi.fn(),
+  expireat: vi.fn(),
+  exec: vi.fn()
+}
+
 vi.mock('../server/utils/redis', () => ({
-  redis: { set: vi.fn(), get: vi.fn(), del: vi.fn() }
+  redis: {
+    set: vi.fn(),
+    del: vi.fn(),
+    hdel: vi.fn(),
+    pipeline: vi.fn()
+  }
 }))
 
 const setMock = vi.mocked(redis.set)
-const getMock = vi.mocked(redis.get)
+const hdelMock = vi.mocked(redis.hdel)
+
+const createdAt = Date.parse('2026-07-28T12:00:00Z')
+const expiresAt = createdAt + ORDER_TTL_MS
+const deadline = Math.ceil(expiresAt / 1000)
+
+const poolWith = (entries: OrderEntry[] = []) => ({ code: 'abcdef', createdAt, expiresAt, entries })
+
+const entry = (id: string, at = createdAt): OrderEntry => ({
+  id,
+  createdAt: at,
+  person: 'Léa',
+  dish: 'Tiramisu',
+  note: '',
+  cat: 'dessert'
+})
 
 beforeEach(() => {
   vi.clearAllMocks()
+  Object.values(pipeline).forEach(step => step.mockReturnValue(pipeline))
+  vi.mocked(redis.pipeline).mockReturnValue(pipeline as never)
 })
 
 afterEach(() => {
@@ -37,80 +66,78 @@ describe('generateOrderCode', () => {
 
 describe('createOrderPool', () => {
   it('expires six hours after its creation', async () => {
-    vi.useFakeTimers().setSystemTime(new Date('2026-07-28T12:00:00Z'))
+    vi.useFakeTimers().setSystemTime(createdAt)
 
     const pool = await createOrderPool()
 
-    expect(pool.entries).toEqual([])
-    expect(pool.expiresAt - pool.createdAt).toBe(ORDER_TTL_MS)
-    expect(setMock).toHaveBeenCalledWith(`pool:${pool.code}`, pool, {
-      exat: Math.ceil(pool.expiresAt / 1000)
-    })
-  })
-})
-
-describe('persistOrderPool', () => {
-  it('keeps the original deadline when the pool is written again', async () => {
-    const createdAt = Date.parse('2026-07-28T12:00:00Z')
-    const pool = { code: 'abcdef', createdAt, expiresAt: createdAt + ORDER_TTL_MS, entries: [] }
-
-    vi.useFakeTimers().setSystemTime(createdAt + 3 * 60 * 60 * 1000)
-    await persistOrderPool(pool)
-
-    expect(setMock).toHaveBeenCalledWith('pool:abcdef', pool, {
-      exat: Math.ceil((createdAt + ORDER_TTL_MS) / 1000)
-    })
+    expect(pool).toMatchObject({ createdAt, expiresAt, entries: [] })
+    expect(setMock).toHaveBeenCalledWith(`pool:${pool.code}`, {
+      code: pool.code,
+      createdAt,
+      expiresAt
+    }, { exat: deadline })
   })
 })
 
 describe('requireOrderPool', () => {
-  it('returns the stored pool', async () => {
-    const pool = { code: 'abcdef', createdAt: 1, expiresAt: 2, entries: [] }
-    getMock.mockResolvedValue(pool)
+  it('merges the stored entries in creation order', async () => {
+    pipeline.exec.mockResolvedValue([
+      { code: 'abcdef', createdAt, expiresAt },
+      { second: entry('second', createdAt + 10), first: entry('first', createdAt) }
+    ])
 
-    await expect(requireOrderPool('abcdef')).resolves.toEqual(pool)
+    const pool = await requireOrderPool('abcdef')
+
+    expect(pipeline.get).toHaveBeenCalledWith('pool:abcdef')
+    expect(pipeline.hgetall).toHaveBeenCalledWith('pool:abcdef:entries')
+    expect(pool.entries.map(item => item.id)).toEqual(['first', 'second'])
   })
 
   it('raises a 404 once the key has expired', async () => {
-    getMock.mockResolvedValue(null)
+    pipeline.exec.mockResolvedValue([null, null])
 
     await expect(requireOrderPool('abcdef')).rejects.toMatchObject({ statusCode: 404 })
   })
 })
 
 describe('addOrderEntry', () => {
-  it('stamps the draft with an id and a creation date, then stores the pool', async () => {
-    vi.useFakeTimers().setSystemTime(new Date('2026-07-28T12:00:00Z'))
+  it('writes a single field instead of rewriting the pool', async () => {
+    vi.useFakeTimers().setSystemTime(createdAt)
+    pipeline.exec.mockResolvedValue([1, 1])
 
-    const pool = { code: 'abcdef', createdAt: 1, expiresAt: 2, entries: [] }
-    const updated = await addOrderEntry(pool, { person: 'Léa', dish: 'Tiramisu', note: '', cat: 'dessert' })
-    const [entry] = updated.entries
+    const pool = await addOrderEntry(poolWith(), { person: 'Léa', dish: 'Tiramisu', note: '', cat: 'dessert' })
+    const [added] = pool.entries
 
-    expect(entry).toMatchObject({ person: 'Léa', dish: 'Tiramisu', note: '', cat: 'dessert' })
-    expect(entry?.createdAt).toBe(Date.parse('2026-07-28T12:00:00Z'))
-    expect(entry?.id).toMatch(/^[0-9a-f-]{36}$/)
-    expect(setMock).toHaveBeenCalledOnce()
+    expect(added).toMatchObject({ person: 'Léa', dish: 'Tiramisu', note: '', cat: 'dessert', createdAt })
+    expect(added?.id).toMatch(/^[0-9a-f-]{36}$/)
+    expect(pipeline.hset).toHaveBeenCalledWith('pool:abcdef:entries', { [added!.id]: added })
+    expect(setMock).not.toHaveBeenCalled()
+  })
+
+  it('keeps the deadline anchored to the creation of the pool', async () => {
+    vi.useFakeTimers().setSystemTime(createdAt + 3 * 60 * 60 * 1000)
+    pipeline.exec.mockResolvedValue([1, 1])
+
+    await addOrderEntry(poolWith(), { person: 'Léa', dish: 'Tiramisu', note: '', cat: 'dessert' })
+
+    expect(pipeline.expireat).toHaveBeenCalledWith('pool:abcdef:entries', deadline)
   })
 })
 
 describe('removeOrderEntry', () => {
-  const poolWith = (ids: string[]) => ({
-    code: 'abcdef',
-    createdAt: 1,
-    expiresAt: 2,
-    entries: ids.map(id => ({ id, createdAt: 1, person: 'Léa', dish: 'Tiramisu', note: '', cat: 'dessert' as const }))
+  it('drops the entry from its own field', async () => {
+    hdelMock.mockResolvedValue(1)
+
+    const pool = await removeOrderEntry(poolWith([entry('keep'), entry('drop')]), 'drop')
+
+    expect(hdelMock).toHaveBeenCalledWith('pool:abcdef:entries', 'drop')
+    expect(pool.entries.map(item => item.id)).toEqual(['keep'])
   })
 
-  it('drops the entry and stores the pool', async () => {
-    const updated = await removeOrderEntry(poolWith(['keep', 'drop']), 'drop')
+  it('raises a 404 on an unknown entry', async () => {
+    hdelMock.mockResolvedValue(0)
 
-    expect(updated.entries.map(entry => entry.id)).toEqual(['keep'])
-    expect(setMock).toHaveBeenCalledOnce()
-  })
-
-  it('raises a 404 on an unknown entry and stores nothing', async () => {
-    await expect(removeOrderEntry(poolWith(['keep']), 'ghost')).rejects.toMatchObject({ statusCode: 404 })
-    expect(setMock).not.toHaveBeenCalled()
+    await expect(removeOrderEntry(poolWith([entry('keep')]), 'ghost')).rejects.toMatchObject({ statusCode: 404 })
   })
 })
 
