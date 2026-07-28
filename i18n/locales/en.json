@@ -6,6 +6,26 @@
     "title": "LunchPool — Group lunch ordering",
     "description": "Group lunch ordering: create an order, share the link, everyone adds their items."
   },
+  "home": {
+    "create": "Create an order",
+    "preparing": "Setting up your order…",
+    "createFailed": "The order could not be created.",
+    "retry": "Try again"
+  },
+  "order": {
+    "notFound": "This order no longer exists",
+    "notFoundHint": "The link has expired or the order was deleted.",
+    "loadFailed": "Could not load this order",
+    "loadFailedHint": "The service did not respond. Try again in a moment.",
+    "retry": "Try again"
+  },
+  "orders": {
+    "title": "Orders",
+    "people": "{count} person | {count} people",
+    "empty": "No orders yet.",
+    "remove": "Remove",
+    "actionFailed": "That action failed, the list was reloaded."
+  },
   "hero": {
     "title": "Who’s eating what today?",
     "subtitle": "Add your dish, grab a colleague’s, LunchPool counts for you.",

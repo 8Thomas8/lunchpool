@@ -6,6 +6,26 @@
     "title": "LunchPool — Commande groupée pour le repas de midi",
     "description": "Commande groupée pour le repas de midi : créez une commande, partagez le lien, chacun ajoute ses articles."
   },
+  "home": {
+    "create": "Créer une commande",
+    "preparing": "On prépare ta commande…",
+    "createFailed": "La commande n’a pas pu être créée.",
+    "retry": "Réessayer"
+  },
+  "order": {
+    "notFound": "Cette commande n’existe plus",
+    "notFoundHint": "Le lien a expiré ou la commande a été supprimée.",
+    "loadFailed": "Impossible de charger cette commande",
+    "loadFailedHint": "Le service n’a pas répondu. Réessaie dans un instant.",
+    "retry": "Réessayer"
+  },
+  "orders": {
+    "title": "Commandes",
+    "people": "{count} personne | {count} personnes",
+    "empty": "Aucune commande pour l’instant.",
+    "remove": "Supprimer",
+    "actionFailed": "L’action a échoué, la liste a été rechargée."
+  },
   "hero": {
     "title": "Qui mange quoi aujourd’hui ?",
     "subtitle": "Ajoute ton plat, pique celui d’un collègue, LunchPool compte pour toi.",
