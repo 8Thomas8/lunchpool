@@ -14,3 +14,15 @@ export interface OrderDraft {
   note: string
   cat: OrderCategory
 }
+
+export interface OrderEntry extends OrderDraft {
+  id: string
+  createdAt: number
+}
+
+export interface OrderPool {
+  code: string
+  createdAt: number
+  expiresAt: number
+  entries: OrderEntry[]
+}
