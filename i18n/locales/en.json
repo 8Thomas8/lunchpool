@@ -17,6 +17,26 @@
     "copy": "Copy",
     "copied": "Copied!"
   },
+  "form": {
+    "title": "Add a dish",
+    "name": "Your name",
+    "namePlaceholder": "e.g. Camille",
+    "dish": "Dish",
+    "dishPlaceholder": "e.g. 4-cheese pizza",
+    "note": "Note",
+    "notePlaceholder": "no onion (optional)",
+    "category": "Category",
+    "add": "Add"
+  },
+  "categories": {
+    "pizza": "Pizza",
+    "salade": "Salad",
+    "sandwich": "Sandwich",
+    "plat": "Hot dish",
+    "boisson": "Drink",
+    "dessert": "Dessert",
+    "autre": "Other"
+  },
   "a11y": {
     "skipToContent": "Skip to main content"
   },

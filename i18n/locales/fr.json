@@ -17,6 +17,26 @@
     "copy": "Copier",
     "copied": "Copié !"
   },
+  "form": {
+    "title": "Ajouter un plat",
+    "name": "Votre nom",
+    "namePlaceholder": "Ex. Camille",
+    "dish": "Plat",
+    "dishPlaceholder": "Ex. Pizza 4 fromages",
+    "note": "Note",
+    "notePlaceholder": "sans oignon (optionnel)",
+    "category": "Catégorie",
+    "add": "Ajouter"
+  },
+  "categories": {
+    "pizza": "Pizza",
+    "salade": "Salade",
+    "sandwich": "Sandwich",
+    "plat": "Plat chaud",
+    "boisson": "Boisson",
+    "dessert": "Dessert",
+    "autre": "Autre"
+  },
   "a11y": {
     "skipToContent": "Aller au contenu principal"
   },
