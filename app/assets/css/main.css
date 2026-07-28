@@ -19,48 +19,39 @@
 
 :root {
   --ui-primary: var(--color-green-500);
-  --ui-bg: #f6f7f9;
-  --ui-bg-elevated: #f4f5f7;
+  --ui-bg: #f9fafb;
+  --ui-bg-elevated: #f3f4f6;
   --ui-bg-accented: #e5e7eb;
   --ui-border: #e5e7eb;
-  --ui-text-muted: #64748b;
-  --ui-text-highlighted: #0f172a;
+  --ui-text-muted: #6b7280;
+  --ui-text-highlighted: #111827;
 
   --lp-primary-hover: var(--color-green-600);
+  --lp-primary-surface: var(--color-green-700);
   --lp-primary-soft: color-mix(in srgb, var(--ui-primary) 13%, transparent);
-  --lp-glow: color-mix(in srgb, var(--ui-primary) 22%, transparent);
   --lp-primary-strong: color-mix(in srgb, var(--ui-primary) 60%, transparent);
   --lp-ring: color-mix(in srgb, var(--ui-primary) 19%, transparent);
+  --lp-hero-bg: color-mix(in srgb, var(--ui-primary) 17%, transparent);
+  --lp-hero-border: color-mix(in srgb, var(--ui-primary) 40%, transparent);
   --lp-card: #ffffff;
   --lp-input: #ffffff;
-  --lp-shadow: 0 1px 3px rgb(0 0 0 / 0.06);
-  --lp-shadow-hero: 0 18px 40px -18px var(--lp-primary-strong);
-  --lp-gradient: linear-gradient(135deg, #00c56f, #0ea5a5);
-  /* Darker variant for surfaces carrying white text: the brand gradient only
-     reaches 2.3:1 against white, below the 4.5:1 required by WCAG AA. */
-  --lp-gradient-surface: linear-gradient(135deg, #00884d, #0b8484);
+  --lp-shadow: 0 1px 2px rgb(0 0 0 / 0.06);
 }
 
 .dark {
   --ui-primary: var(--color-green-500);
-  --ui-bg: #050810;
-  --ui-bg-elevated: #1a2333;
-  --ui-bg-accented: #1e293b;
-  --ui-border: #1e293b;
-  --ui-text-muted: #94a3b8;
-  --ui-text-highlighted: #f1f5f9;
+  --ui-bg: #030712;
+  --ui-bg-elevated: #1f2937;
+  --ui-bg-accented: #374151;
+  --ui-border: #374151;
+  --ui-text-muted: #9ca3af;
+  --ui-text-highlighted: #f9fafb;
 
-  --lp-card: #101623;
-  --lp-input: #0b111c;
-  --lp-shadow: 0 2px 8px rgb(0 0 0 / 0.4);
+  --lp-card: #111827;
+  --lp-input: #111827;
+  --lp-shadow: 0 1px 2px rgb(0 0 0 / 0.3);
 }
 
 body {
   background-color: var(--ui-bg);
-  background-image: radial-gradient(
-    1400px 560px at 50% -4%,
-    var(--lp-glow),
-    transparent
-  );
-  background-repeat: no-repeat;
 }

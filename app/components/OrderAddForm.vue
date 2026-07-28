@@ -96,7 +96,7 @@ const onSubmit = () => {
       <button
         type="submit"
         :disabled="!canSubmit"
-        class="h-10 shrink-0 self-end rounded-lg bg-green-700 px-5 py-2.5 text-sm font-bold whitespace-nowrap text-white shadow-[0_6px_16px_-6px_var(--lp-primary-strong)] transition enabled:hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+        class="h-10 shrink-0 self-end rounded-lg bg-(--lp-primary-surface) px-5 py-2.5 text-sm font-bold whitespace-nowrap text-white shadow-[0_6px_16px_-6px_var(--lp-primary-strong)] transition enabled:hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
       >
         + {{ t('form.add') }}
       </button>

@@ -33,69 +33,72 @@ const countdownLabel = computed(() => countdown.value ?? t('hero.expired'))
 </script>
 
 <template>
-  <section class="relative overflow-hidden rounded-3xl bg-(image:--lp-gradient-surface) p-6 text-white shadow-(--lp-shadow-hero) md:p-8">
+  <section class="relative overflow-hidden rounded-xl border border-(--lp-hero-border) bg-(--lp-hero-bg) px-6 py-6 shadow-(--lp-shadow) sm:px-6.5">
     <div
       aria-hidden="true"
-      class="pointer-events-none absolute -top-10 -right-10 size-[200px] rounded-full bg-black/8"
+      class="pointer-events-none absolute -top-[30px] -right-[30px] size-[170px] rounded-full bg-(--lp-primary-soft) opacity-80"
     />
     <div
       aria-hidden="true"
-      class="pointer-events-none absolute -bottom-[70px] right-15 size-[150px] rounded-full bg-black/6"
+      class="pointer-events-none absolute -bottom-[60px] right-[70px] size-[120px] rounded-full bg-(--lp-primary-soft) opacity-50"
     />
 
     <div class="relative flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
-      <div>
-        <h1 class="text-[26px] leading-[1.1] font-extrabold tracking-[-0.02em]">
+      <div class="flex-1 md:basis-[260px]">
+        <h1 class="text-[26px] leading-[1.15] font-extrabold tracking-[-0.02em] text-highlighted">
           {{ t('hero.title') }}
         </h1>
-        <p class="mt-2 max-w-[360px] text-sm">
+        <p class="mt-2 max-w-[400px] text-sm text-muted">
           {{ t('hero.subtitle') }}
         </p>
 
-        <div class="mt-4 flex flex-wrap items-center gap-2.5">
-          <p class="inline-flex items-center gap-2 rounded-full bg-black/15 px-3.5 py-1.5 text-xs font-semibold">
-            <span class="size-1.5 animate-pulse rounded-full bg-white" />
-            <span class="font-bold">{{ t('hero.expiresLabel') }}</span>
-            <span aria-hidden="true">·</span>
+        <div class="mt-[18px] flex flex-wrap items-center gap-2">
+          <p class="inline-flex items-center gap-2 rounded-full border border-default bg-(--lp-card) px-3 py-[5px] text-xs font-semibold text-highlighted">
+            <span class="size-1.5 animate-pulse rounded-full bg-primary" />
+            <span>{{ t('hero.expiresLabel') }}</span>
+            <span
+              aria-hidden="true"
+              class="text-muted"
+            >·</span>
             <ClientOnly>
               <span
                 role="timer"
-                class="tabular-nums"
+                class="tabular-nums text-muted"
               >
                 {{ countdownLabel }}
               </span>
               <template #fallback>
-                <span class="tabular-nums">--:--:--</span>
+                <span class="tabular-nums text-muted">--:--:--</span>
               </template>
             </ClientOnly>
           </p>
 
           <p
             :title="t('hero.presenceTitle')"
-            class="inline-flex items-center gap-[7px] rounded-full bg-black/15 px-3.5 py-1.5 text-xs font-bold"
+            class="inline-flex items-center gap-[7px] rounded-full border border-default bg-(--lp-card) px-3 py-[5px] text-xs font-semibold text-highlighted"
           >
-            <span class="size-1.5 animate-pulse rounded-full bg-[#4ade80] ring-3 ring-[#4ade80]/30" />
+            <span class="size-1.5 animate-pulse rounded-full bg-[#22c55e]" />
             <span class="sr-only">{{ t('hero.presenceTitle') }} :</span>
             {{ t('hero.presence', presence) }}
           </p>
         </div>
       </div>
 
-      <div class="rounded-xl border border-white/25 bg-black/10 p-4 backdrop-blur-[6px] print:hidden md:min-w-[230px]">
-        <p class="mb-2 text-xs font-semibold">
+      <div class="rounded-lg border border-default bg-(--lp-card) p-3.5 print:hidden md:min-w-[240px]">
+        <p class="mb-2 text-xs font-semibold text-muted">
           {{ t('hero.shareTitle') }}
         </p>
         <div class="flex items-center gap-2">
-          <p class="min-w-0 flex-1 truncate rounded-lg bg-black/15 px-3 py-2 font-mono text-xs">
+          <p class="min-w-0 flex-1 truncate rounded-lg border border-default bg-elevated px-[11px] py-2 font-mono text-xs text-highlighted">
             {{ shareUrl }}
           </p>
-          <UButton
-            color="neutral"
-            class="rounded-lg bg-white px-3.5 py-2 text-[13px] font-bold text-(--ui-color-primary-700) hover:bg-white/90"
+          <button
+            type="button"
+            class="shrink-0 rounded-lg bg-(--lp-primary-surface) px-3.5 py-[9px] text-[13px] font-semibold whitespace-nowrap text-white transition hover:brightness-105 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
             @click="copy()"
           >
             {{ copied ? t('hero.copied') : t('hero.copy') }}
-          </UButton>
+          </button>
         </div>
         <p
           aria-live="polite"

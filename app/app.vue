@@ -6,7 +6,7 @@ useHead(() => ({
   htmlAttrs: localeHead.value.htmlAttrs ?? {},
   meta: [
     { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-    { name: 'theme-color', content: '#050810' },
+    { name: 'theme-color', content: '#030712' },
     ...(localeHead.value.meta ?? [])
   ],
   link: [
@@ -43,7 +43,7 @@ useSeoMeta({
 
 <template>
   <UApp>
-    <div class="min-h-screen p-4 sm:p-6 lg:p-10">
+    <div class="min-h-screen px-4 py-6 sm:px-6 lg:px-10">
       <a
         href="#main"
         class="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:rounded-lg focus:bg-(--lp-card) focus:px-4 focus:py-2 focus:font-semibold focus:text-highlighted focus:shadow-lg focus:outline-2 focus:outline-primary"
