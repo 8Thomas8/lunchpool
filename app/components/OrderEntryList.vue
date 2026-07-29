@@ -1,13 +1,14 @@
 <script setup lang="ts">
 const props = defineProps<{
   entries: OrderEntry[]
+  priceEnabled: boolean
 }>()
 
 defineEmits<{
   remove: [id: string]
 }>()
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 
 const people = computed(() => new Set(props.entries.map(entry => entry.person)).size)
 </script>
@@ -45,6 +46,13 @@ const people = computed(() => new Set(props.entries.map(entry => entry.person)).
         <span class="min-w-0 flex-1 truncate text-muted">
           {{ entry.dish }}<template v-if="entry.note"> · {{ entry.note }}</template>
         </span>
+        <span
+          v-if="priceEnabled && entry.price"
+          class="shrink-0 rounded-md border border-default bg-(--lp-card) px-2 py-0.5 text-xs font-semibold tabular-nums whitespace-nowrap text-muted"
+        >
+          {{ formatOrderPrice(entry.price, locale) }}
+        </span>
+
         <UButton
           color="error"
           variant="ghost"

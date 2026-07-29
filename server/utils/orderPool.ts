@@ -6,7 +6,12 @@ export const orderDraftSchema = z.object({
   person: z.string().trim().min(1).max(60),
   dish: z.string().trim().min(1).max(120),
   note: z.string().trim().max(200).default(''),
-  cat: z.enum(ORDER_CATEGORIES).default(DEFAULT_ORDER_CATEGORY)
+  cat: z.enum(ORDER_CATEGORIES).default(DEFAULT_ORDER_CATEGORY),
+  price: z.number().min(0).max(ORDER_MAX_PRICE).default(0).transform(roundOrderPrice)
+})
+
+export const orderSettingsSchema = z.object({
+  priceEnabled: z.boolean()
 })
 
 type OrderPoolMeta = Omit<OrderPool, 'entries'>
@@ -35,7 +40,8 @@ export const createOrderPool = async () => {
   const meta: OrderPoolMeta = {
     code: generateOrderCode(),
     createdAt,
-    expiresAt: createdAt + ORDER_TTL_MS
+    expiresAt: createdAt + ORDER_TTL_MS,
+    priceEnabled: true
   }
 
   await redis.set(poolKey(meta.code), meta, { exat: deadline(meta) })
@@ -57,7 +63,20 @@ export const requireOrderPool = async (code: string): Promise<OrderPool> => {
     throw createError({ statusCode: 404, statusMessage: 'Order not found or expired' })
   }
 
-  return { ...meta, entries: Object.values(entries ?? {}).sort(byCreation) }
+  return {
+    ...meta,
+    priceEnabled: meta.priceEnabled ?? true,
+    entries: Object.values(entries ?? {}).sort(byCreation)
+  }
+}
+
+export const setOrderPriceEnabled = async (pool: OrderPool, priceEnabled: boolean) => {
+  const { entries, ...meta } = pool
+  const updated: OrderPoolMeta = { ...meta, priceEnabled }
+
+  await redis.set(poolKey(updated.code), updated, { exat: deadline(updated) })
+
+  return { ...updated, entries }
 }
 
 export const addOrderEntry = async (pool: OrderPool, draft: OrderDraft) => {

@@ -35,7 +35,12 @@
     "presenceTitle": "People currently on the page",
     "shareTitle": "Share link",
     "copy": "Copy",
-    "copied": "Copied!"
+    "copied": "Copied!",
+    "priceToggle": "Prices",
+    "priceOn": "On",
+    "priceOff": "Off",
+    "priceToggleOn": "Turn on price tracking for this order",
+    "priceToggleOff": "Turn off price tracking for this order"
   },
   "form": {
     "title": "Add a dish",
@@ -45,6 +50,8 @@
     "dishPlaceholder": "e.g. 4-cheese pizza",
     "note": "Note",
     "notePlaceholder": "no onion (optional)",
+    "price": "Price",
+    "pricePlaceholder": "0.00",
     "category": "Category",
     "add": "Add"
   },

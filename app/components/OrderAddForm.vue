@@ -1,4 +1,8 @@
 <script setup lang="ts">
+defineProps<{
+  priceEnabled: boolean
+}>()
+
 const emit = defineEmits<{
   submit: [draft: OrderDraft]
 }>()
@@ -8,12 +12,14 @@ const { t } = useI18n()
 const nameId = useId()
 const dishId = useId()
 const noteId = useId()
+const priceId = useId()
 
 const form = reactive({
   name: '',
   dish: '',
   note: '',
-  cat: DEFAULT_ORDER_CATEGORY as OrderCategory
+  cat: DEFAULT_ORDER_CATEGORY as OrderCategory,
+  price: ''
 })
 
 const canSubmit = computed(() => form.name.trim().length > 0 && form.dish.trim().length > 0)
@@ -25,12 +31,14 @@ const onSubmit = () => {
     person: form.name.trim(),
     dish: form.dish.trim(),
     note: form.note.trim(),
-    cat: form.cat
+    cat: form.cat,
+    price: parseOrderPrice(form.price)
   })
 
   form.dish = ''
   form.note = ''
   form.cat = DEFAULT_ORDER_CATEGORY
+  form.price = ''
 }
 </script>
 
@@ -91,6 +99,34 @@ const onSubmit = () => {
           :placeholder="t('form.notePlaceholder')"
           class="w-full rounded-lg border border-default bg-(--lp-input) px-3 py-2.5 text-sm text-highlighted outline-none placeholder:text-muted focus:border-primary focus:ring-[3px] focus:ring-(--lp-ring)"
         >
+      </div>
+
+      <div
+        v-if="priceEnabled"
+        class="flex-[0_1_100px]"
+      >
+        <label
+          :for="priceId"
+          class="mb-1.5 block text-[13px] font-medium text-muted"
+        >
+          {{ t('form.price') }}
+        </label>
+        <div class="relative">
+          <input
+            :id="priceId"
+            v-model="form.price"
+            type="text"
+            inputmode="decimal"
+            :placeholder="t('form.pricePlaceholder')"
+            class="w-full rounded-lg border border-default bg-(--lp-input) py-2.5 pr-6 pl-3 text-sm text-highlighted outline-none placeholder:text-muted focus:border-primary focus:ring-[3px] focus:ring-(--lp-ring)"
+          >
+          <span
+            aria-hidden="true"
+            class="pointer-events-none absolute top-1/2 right-2.5 -translate-y-1/2 text-[13px] text-muted"
+          >
+            {{ ORDER_CURRENCY }}
+          </span>
+        </div>
       </div>
 
       <button

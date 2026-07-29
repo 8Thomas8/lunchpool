@@ -35,7 +35,12 @@
     "presenceTitle": "Personnes actuellement sur la page",
     "shareTitle": "Lien de partage",
     "copy": "Copier",
-    "copied": "Copié !"
+    "copied": "Copié !",
+    "priceToggle": "Prix",
+    "priceOn": "Activé",
+    "priceOff": "Désactivé",
+    "priceToggleOn": "Activer le suivi des prix pour cette commande",
+    "priceToggleOff": "Désactiver le suivi des prix pour cette commande"
   },
   "form": {
     "title": "Ajouter un plat",
@@ -45,6 +50,8 @@
     "dishPlaceholder": "Ex. Pizza 4 fromages",
     "note": "Note",
     "notePlaceholder": "sans oignon (optionnel)",
+    "price": "Prix",
+    "pricePlaceholder": "0,00",
     "category": "Catégorie",
     "add": "Ajouter"
   },

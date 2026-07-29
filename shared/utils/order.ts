@@ -8,11 +8,16 @@ export type OrderCategory = typeof ORDER_CATEGORIES[number]
 
 export const DEFAULT_ORDER_CATEGORY: OrderCategory = 'autre'
 
+export const ORDER_CURRENCY = '€'
+
+export const ORDER_MAX_PRICE = 9999
+
 export interface OrderDraft {
   person: string
   dish: string
   note: string
   cat: OrderCategory
+  price: number
 }
 
 export interface OrderEntry extends OrderDraft {
@@ -24,5 +29,25 @@ export interface OrderPool {
   code: string
   createdAt: number
   expiresAt: number
+  priceEnabled: boolean
   entries: OrderEntry[]
+}
+
+export const roundOrderPrice = (price: number) => Math.round(price * 100) / 100
+
+export const parseOrderPrice = (value: string) => {
+  const price = Number.parseFloat(value.replace(',', '.'))
+
+  if (!Number.isFinite(price) || price <= 0) return 0
+
+  return roundOrderPrice(Math.min(price, ORDER_MAX_PRICE))
+}
+
+export const formatOrderPrice = (price: number, locale: string) => {
+  const amount = new Intl.NumberFormat(locale, {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  }).format(price)
+
+  return `${amount}\u00a0${ORDER_CURRENCY}`
 }

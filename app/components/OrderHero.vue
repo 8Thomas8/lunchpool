@@ -1,12 +1,17 @@
 <script setup lang="ts">
 const props = withDefaults(defineProps<{
   shareUrl: string
+  priceEnabled: boolean
   expiresAt?: number
   presence?: number
 }>(), {
   expiresAt: () => Date.now() + ORDER_TTL_MS,
   presence: 1
 })
+
+const emit = defineEmits<{
+  'update:priceEnabled': [priceEnabled: boolean]
+}>()
 
 const { t } = useI18n()
 const now = useNow({ interval: 1000 })
@@ -30,6 +35,8 @@ const countdown = computed(() => {
 })
 
 const countdownLabel = computed(() => countdown.value ?? t('hero.expired'))
+
+const priceToggleTitle = computed(() => props.priceEnabled ? t('hero.priceToggleOff') : t('hero.priceToggleOn'))
 </script>
 
 <template>
@@ -81,6 +88,26 @@ const countdownLabel = computed(() => countdown.value ?? t('hero.expired'))
             <span class="sr-only">{{ t('hero.presenceTitle') }} :</span>
             {{ t('hero.presence', presence) }}
           </p>
+
+          <button
+            type="button"
+            role="switch"
+            :aria-checked="priceEnabled"
+            :title="priceToggleTitle"
+            class="inline-flex items-center gap-[9px] rounded-full border border-default bg-(--lp-card) px-3 py-[5px] transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary print:hidden"
+            :class="priceEnabled ? 'text-primary' : 'text-muted'"
+            @click="emit('update:priceEnabled', !priceEnabled)"
+          >
+            <span class="text-xs font-semibold">{{ t('hero.priceToggle') }}</span>
+            <span
+              aria-hidden="true"
+              class="flex h-[22px] w-[38px] shrink-0 items-center rounded-full px-[3px] transition-colors duration-150"
+              :class="priceEnabled ? 'justify-end bg-primary' : 'justify-start bg-accented'"
+            >
+              <span class="size-4 shrink-0 rounded-full bg-white shadow-[0_1px_2px_rgba(0,0,0,0.3)]" />
+            </span>
+            <span class="text-xs font-bold">{{ priceEnabled ? t('hero.priceOn') : t('hero.priceOff') }}</span>
+          </button>
         </div>
       </div>
 

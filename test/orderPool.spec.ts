@@ -1,12 +1,14 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { ORDER_TTL_MS } from '../shared/utils/order'
+import { ORDER_TTL_MS, formatOrderPrice, parseOrderPrice } from '../shared/utils/order'
 import {
   addOrderEntry,
   createOrderPool,
   generateOrderCode,
   orderDraftSchema,
+  orderSettingsSchema,
   removeOrderEntry,
-  requireOrderPool
+  requireOrderPool,
+  setOrderPriceEnabled
 } from '../server/utils/orderPool'
 import { redis } from '../server/utils/redis'
 
@@ -34,7 +36,13 @@ const createdAt = Date.parse('2026-07-28T12:00:00Z')
 const expiresAt = createdAt + ORDER_TTL_MS
 const deadline = Math.ceil(expiresAt / 1000)
 
-const poolWith = (entries: OrderEntry[] = []) => ({ code: 'abcdef', createdAt, expiresAt, entries })
+const poolWith = (entries: OrderEntry[] = []) => ({
+  code: 'abcdef',
+  createdAt,
+  expiresAt,
+  priceEnabled: true,
+  entries
+})
 
 const entry = (id: string, at = createdAt): OrderEntry => ({
   id,
@@ -42,8 +50,11 @@ const entry = (id: string, at = createdAt): OrderEntry => ({
   person: 'Léa',
   dish: 'Tiramisu',
   note: '',
-  cat: 'dessert'
+  cat: 'dessert',
+  price: 0
 })
+
+const draft = { person: 'Léa', dish: 'Tiramisu', note: '', cat: 'dessert' as const, price: 0 }
 
 beforeEach(() => {
   vi.clearAllMocks()
@@ -70,11 +81,12 @@ describe('createOrderPool', () => {
 
     const pool = await createOrderPool()
 
-    expect(pool).toMatchObject({ createdAt, expiresAt, entries: [] })
+    expect(pool).toMatchObject({ createdAt, expiresAt, priceEnabled: true, entries: [] })
     expect(setMock).toHaveBeenCalledWith(`pool:${pool.code}`, {
       code: pool.code,
       createdAt,
-      expiresAt
+      expiresAt,
+      priceEnabled: true
     }, { exat: deadline })
   })
 })
@@ -82,7 +94,7 @@ describe('createOrderPool', () => {
 describe('requireOrderPool', () => {
   it('merges the stored entries in creation order', async () => {
     pipeline.exec.mockResolvedValue([
-      { code: 'abcdef', createdAt, expiresAt },
+      { code: 'abcdef', createdAt, expiresAt, priceEnabled: true },
       { second: entry('second', createdAt + 10), first: entry('first', createdAt) }
     ])
 
@@ -93,10 +105,30 @@ describe('requireOrderPool', () => {
     expect(pool.entries.map(item => item.id)).toEqual(['first', 'second'])
   })
 
+  it('turns prices on for pools stored before the setting existed', async () => {
+    pipeline.exec.mockResolvedValue([{ code: 'abcdef', createdAt, expiresAt }, null])
+
+    await expect(requireOrderPool('abcdef')).resolves.toMatchObject({ priceEnabled: true })
+  })
+
   it('raises a 404 once the key has expired', async () => {
     pipeline.exec.mockResolvedValue([null, null])
 
     await expect(requireOrderPool('abcdef')).rejects.toMatchObject({ statusCode: 404 })
+  })
+})
+
+describe('setOrderPriceEnabled', () => {
+  it('rewrites the meta key without touching the entries', async () => {
+    const pool = await setOrderPriceEnabled(poolWith([entry('keep')]), false)
+
+    expect(setMock).toHaveBeenCalledWith('pool:abcdef', {
+      code: 'abcdef',
+      createdAt,
+      expiresAt,
+      priceEnabled: false
+    }, { exat: deadline })
+    expect(pool.entries.map(item => item.id)).toEqual(['keep'])
   })
 })
 
@@ -105,10 +137,10 @@ describe('addOrderEntry', () => {
     vi.useFakeTimers().setSystemTime(createdAt)
     pipeline.exec.mockResolvedValue([1, 1])
 
-    const pool = await addOrderEntry(poolWith(), { person: 'Léa', dish: 'Tiramisu', note: '', cat: 'dessert' })
+    const pool = await addOrderEntry(poolWith(), { ...draft, price: 11.5 })
     const [added] = pool.entries
 
-    expect(added).toMatchObject({ person: 'Léa', dish: 'Tiramisu', note: '', cat: 'dessert', createdAt })
+    expect(added).toMatchObject({ person: 'Léa', dish: 'Tiramisu', note: '', cat: 'dessert', price: 11.5, createdAt })
     expect(added?.id).toMatch(/^[0-9a-f-]{36}$/)
     expect(pipeline.hset).toHaveBeenCalledWith('pool:abcdef:entries', { [added!.id]: added })
     expect(setMock).not.toHaveBeenCalled()
@@ -118,7 +150,7 @@ describe('addOrderEntry', () => {
     vi.useFakeTimers().setSystemTime(createdAt + 3 * 60 * 60 * 1000)
     pipeline.exec.mockResolvedValue([1, 1])
 
-    await addOrderEntry(poolWith(), { person: 'Léa', dish: 'Tiramisu', note: '', cat: 'dessert' })
+    await addOrderEntry(poolWith(), draft)
 
     expect(pipeline.expireat).toHaveBeenCalledWith('pool:abcdef:entries', deadline)
   })
@@ -147,8 +179,16 @@ describe('orderDraftSchema', () => {
       person: 'Léa',
       dish: 'Pizza',
       note: '',
-      cat: 'autre'
+      cat: 'autre',
+      price: 0
     })
+  })
+
+  it('rounds the price to the cent and rejects the out-of-range ones', () => {
+    expect(orderDraftSchema.parse({ person: 'Léa', dish: 'Pizza', price: 11.567 }).price).toBe(11.57)
+    expect(orderDraftSchema.safeParse({ person: 'Léa', dish: 'Pizza', price: -1 }).success).toBe(false)
+    expect(orderDraftSchema.safeParse({ person: 'Léa', dish: 'Pizza', price: 10000 }).success).toBe(false)
+    expect(orderDraftSchema.safeParse({ person: 'Léa', dish: 'Pizza', price: '11,50' }).success).toBe(false)
   })
 
   it('rejects a draft without a person or a dish', () => {
@@ -159,5 +199,37 @@ describe('orderDraftSchema', () => {
   it('rejects an unknown category and oversized text', () => {
     expect(orderDraftSchema.safeParse({ person: 'Léa', dish: 'Pizza', cat: 'sushi' }).success).toBe(false)
     expect(orderDraftSchema.safeParse({ person: 'Léa', dish: 'x'.repeat(121) }).success).toBe(false)
+  })
+})
+
+describe('orderSettingsSchema', () => {
+  it('only accepts a boolean flag', () => {
+    expect(orderSettingsSchema.parse({ priceEnabled: false })).toEqual({ priceEnabled: false })
+    expect(orderSettingsSchema.safeParse({ priceEnabled: 'yes' }).success).toBe(false)
+    expect(orderSettingsSchema.safeParse({}).success).toBe(false)
+  })
+})
+
+describe('parseOrderPrice', () => {
+  it('reads a comma as a decimal separator and rounds to the cent', () => {
+    expect(parseOrderPrice('11,567')).toBe(11.57)
+    expect(parseOrderPrice('9')).toBe(9)
+  })
+
+  it('falls back to zero on anything that is not a positive amount', () => {
+    expect(parseOrderPrice('')).toBe(0)
+    expect(parseOrderPrice('abc')).toBe(0)
+    expect(parseOrderPrice('-3')).toBe(0)
+  })
+
+  it('caps the amount instead of letting the server reject it', () => {
+    expect(parseOrderPrice('99999')).toBe(9999)
+  })
+})
+
+describe('formatOrderPrice', () => {
+  it('follows the locale and appends the currency', () => {
+    expect(formatOrderPrice(11.5, 'fr')).toBe('11,50\u00a0€')
+    expect(formatOrderPrice(9, 'en')).toBe('9.00\u00a0€')
   })
 })
