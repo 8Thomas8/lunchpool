@@ -145,14 +145,13 @@ const onSubmit = () => {
         {{ t('form.category') }}
       </legend>
       <div class="flex flex-wrap gap-2">
-        <label
+        <OrderCategoryChip
           v-for="category in ORDER_CATEGORIES"
           :key="category"
-          :style="{ '--lp-pill': ORDER_CATEGORY_COLORS[category] }"
-          class="cursor-pointer rounded-full border px-[13px] py-1.5 text-xs font-bold transition-[color,background-color,border-color] duration-[120ms] has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-primary"
-          :class="form.cat === category
-            ? 'border-(--lp-pill) bg-[color-mix(in_srgb,var(--lp-pill)_12%,transparent)] text-(--lp-pill) dark:bg-[color-mix(in_srgb,var(--lp-pill)_18%,transparent)]'
-            : 'border-default text-muted'"
+          as="label"
+          :cat="category"
+          :active="form.cat === category"
+          class="cursor-pointer transition-[color,background-color,border-color] duration-[120ms] has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-primary"
         >
           <input
             v-model="form.cat"
@@ -161,8 +160,7 @@ const onSubmit = () => {
             :value="category"
             class="sr-only"
           >
-          {{ t(`categories.${category}`) }}
-        </label>
+        </OrderCategoryChip>
       </div>
     </fieldset>
   </form>

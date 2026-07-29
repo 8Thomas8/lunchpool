@@ -22,8 +22,9 @@
   "orders": {
     "title": "Orders",
     "people": "{count} person | {count} people",
+    "items": "{count} item | {count} items",
     "empty": "No orders yet.",
-    "remove": "Remove",
+    "removeEntry": "Remove {dish} for {person}",
     "actionFailed": "That action failed, the list was reloaded."
   },
   "hero": {

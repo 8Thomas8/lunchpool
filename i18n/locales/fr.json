@@ -22,8 +22,9 @@
   "orders": {
     "title": "Commandes",
     "people": "{count} personne | {count} personnes",
+    "items": "{count} plat | {count} plats",
     "empty": "Aucune commande pour l’instant.",
-    "remove": "Supprimer",
+    "removeEntry": "Supprimer {dish} de {person}",
     "actionFailed": "L’action a échoué, la liste a été rechargée."
   },
   "hero": {
