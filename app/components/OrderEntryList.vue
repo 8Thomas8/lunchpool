@@ -41,16 +41,17 @@ const groups = computed(() => groupOrderEntries(props.entries))
         :style="{ '--lp-cat': ORDER_CATEGORY_COLORS[group.cat] }"
       >
         <div class="mb-2.5 flex items-center gap-2.5">
-          <span class="rounded-full border border-(--lp-cat) bg-[color-mix(in_srgb,var(--lp-cat)_12%,transparent)] px-[13px] py-1.5 text-xs font-bold text-(--lp-cat) dark:bg-[color-mix(in_srgb,var(--lp-cat)_18%,transparent)]">
-            {{ t(`categories.${group.cat}`) }}
-          </span>
+          <OrderCategoryChip
+            :cat="group.cat"
+            active
+          />
           <span class="text-[13px] font-semibold text-muted">{{ t('orders.items', group.count) }}</span>
         </div>
 
         <ul class="flex flex-col gap-3">
           <li
             v-for="dish in group.dishes"
-            :key="dish.key"
+            :key="dish.dish"
             class="rounded-lg border border-default bg-(--lp-card) px-[18px] py-4 shadow-(--lp-shadow) transition-colors hover:border-primary"
           >
             <div class="flex items-center gap-2.5">
@@ -73,13 +74,7 @@ const groups = computed(() => groupOrderEntries(props.entries))
                 :key="entry.id"
                 class="flex items-center gap-2.5 rounded-lg bg-elevated px-3 py-2"
               >
-                <span
-                  aria-hidden="true"
-                  :style="{ '--lp-hue': orderPersonHue(entry.person) }"
-                  class="flex size-[30px] shrink-0 items-center justify-center rounded-full bg-[hsl(var(--lp-hue)_75%_92%)] text-xs font-extrabold text-[hsl(var(--lp-hue)_55%_40%)] dark:bg-[hsl(var(--lp-hue)_38%_26%)] dark:text-[hsl(var(--lp-hue)_70%_72%)]"
-                >
-                  {{ orderPersonInitials(entry.person) }}
-                </span>
+                <OrderPersonAvatar :person="entry.person" />
 
                 <p class="min-w-0 flex-1 truncate text-sm">
                   <span class="font-semibold text-highlighted">{{ entry.person }}</span>
@@ -99,10 +94,13 @@ const groups = computed(() => groupOrderEntries(props.entries))
                 <button
                   type="button"
                   :aria-label="t('orders.removeEntry', { person: entry.person, dish: dish.dish })"
-                  class="shrink-0 rounded-md px-1.5 py-[3px] text-[15px] leading-none text-muted transition-colors hover:bg-error/10 hover:text-error focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary print:hidden"
+                  class="shrink-0 cursor-pointer rounded-md p-1 text-muted transition-colors hover:bg-error/10 hover:text-error focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary print:hidden"
                   @click="$emit('remove', entry.id)"
                 >
-                  ✕
+                  <UIcon
+                    name="i-lucide-x"
+                    class="size-4"
+                  />
                 </button>
               </li>
             </ul>

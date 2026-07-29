@@ -4,10 +4,10 @@ import type { OrderCategory, OrderEntry } from '../shared/utils/order'
 
 let sequence = 0
 
-const entry = (person: string, dish: string, cat: OrderCategory, note = ''): OrderEntry => {
+const entry = (person: string, dish: string, cat: OrderCategory): OrderEntry => {
   sequence++
 
-  return { id: `id-${sequence}`, person, dish, note, cat, price: 0, createdAt: sequence }
+  return { id: `id-${sequence}`, person, dish, note: '', cat, price: 0, createdAt: sequence }
 }
 
 describe('groupOrderEntries', () => {

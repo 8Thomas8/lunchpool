@@ -1,5 +1,4 @@
 export interface OrderDishGroup {
-  key: string
   dish: string
   cat: OrderCategory
   entries: OrderEntry[]
@@ -21,23 +20,33 @@ export const groupOrderEntries = (entries: OrderEntry[]): OrderCategoryGroup[] =
     if (dish) {
       dish.entries.push(entry)
     } else {
-      dishes.set(key, { key, dish: entry.dish, cat: entry.cat, entries: [entry] })
+      dishes.set(key, { dish: entry.dish, cat: entry.cat, entries: [entry] })
     }
   }
 
-  const byCount = [...dishes.values()].sort((a, b) => b.entries.length - a.entries.length)
+  const byCategory = new Map<OrderCategory, OrderDishGroup[]>()
 
-  return ORDER_CATEGORIES
-    .map((cat) => {
-      const catDishes = byCount.filter(dish => dish.cat === cat)
+  for (const dish of [...dishes.values()].sort((a, b) => b.entries.length - a.entries.length)) {
+    const catDishes = byCategory.get(dish.cat)
 
-      return {
-        cat,
-        count: catDishes.reduce((total, dish) => total + dish.entries.length, 0),
-        dishes: catDishes
-      }
-    })
-    .filter(group => group.dishes.length > 0)
+    if (catDishes) {
+      catDishes.push(dish)
+    } else {
+      byCategory.set(dish.cat, [dish])
+    }
+  }
+
+  return ORDER_CATEGORIES.flatMap((cat) => {
+    const catDishes = byCategory.get(cat)
+
+    if (!catDishes) return []
+
+    return [{
+      cat,
+      count: catDishes.reduce((total, dish) => total + dish.entries.length, 0),
+      dishes: catDishes
+    }]
+  })
 }
 
 export const orderPersonInitials = (person: string) => person.trim().slice(0, 2).toUpperCase()
