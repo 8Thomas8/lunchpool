@@ -7,12 +7,12 @@ export const orderDraftSchema = z.object({
   dish: z.string().trim().min(1).max(120),
   note: z.string().trim().max(200).default(''),
   cat: z.enum(ORDER_CATEGORIES).default(DEFAULT_ORDER_CATEGORY),
-  price: z.number().min(0).max(ORDER_MAX_PRICE).default(0).transform(roundOrderPrice)
+  price: z.number().min(0).max(ORDER_MAX_PRICE).default(0).transform(price => Math.round(price * 100) / 100)
 })
 
 export const orderSettingsSchema = z.object({
   priceEnabled: z.boolean()
-})
+}).partial()
 
 type OrderPoolMeta = Omit<OrderPool, 'entries'>
 
@@ -30,6 +30,9 @@ const createOrderEntry = (draft: OrderDraft): OrderEntry => ({
   ...draft
 })
 
+const writeOrderPoolMeta = async (meta: OrderPoolMeta) =>
+  await redis.set(poolKey(meta.code), meta, { exat: deadline(meta) })
+
 export const generateOrderCode = () => Array.from(
   crypto.getRandomValues(new Uint8Array(ORDER_CODE_LENGTH)),
   byte => ORDER_CODE_ALPHABET[byte & 31]
@@ -38,13 +41,13 @@ export const generateOrderCode = () => Array.from(
 export const createOrderPool = async () => {
   const createdAt = Date.now()
   const meta: OrderPoolMeta = {
+    ...DEFAULT_ORDER_SETTINGS,
     code: generateOrderCode(),
     createdAt,
-    expiresAt: createdAt + ORDER_TTL_MS,
-    priceEnabled: true
+    expiresAt: createdAt + ORDER_TTL_MS
   }
 
-  await redis.set(poolKey(meta.code), meta, { exat: deadline(meta) })
+  await writeOrderPoolMeta(meta)
 
   const pool: OrderPool = { ...meta, entries: [] }
 
@@ -64,19 +67,18 @@ export const requireOrderPool = async (code: string): Promise<OrderPool> => {
   }
 
   return {
+    ...DEFAULT_ORDER_SETTINGS,
     ...meta,
-    priceEnabled: meta.priceEnabled ?? true,
     entries: Object.values(entries ?? {}).sort(byCreation)
   }
 }
 
-export const setOrderPriceEnabled = async (pool: OrderPool, priceEnabled: boolean) => {
+export const updateOrderSettings = async (pool: OrderPool, settings: Partial<OrderSettings>) => {
   const { entries, ...meta } = pool
-  const updated: OrderPoolMeta = { ...meta, priceEnabled }
 
-  await redis.set(poolKey(updated.code), updated, { exat: deadline(updated) })
+  await writeOrderPoolMeta({ ...meta, ...settings })
 
-  return { ...updated, entries }
+  return { ...pool, ...settings }
 }
 
 export const addOrderEntry = async (pool: OrderPool, draft: OrderDraft) => {

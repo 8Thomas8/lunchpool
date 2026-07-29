@@ -14,6 +14,8 @@ const dishId = useId()
 const noteId = useId()
 const priceId = useId()
 
+const fieldClass = 'w-full rounded-lg border border-default bg-(--lp-input) px-3 py-2.5 text-sm text-highlighted outline-none placeholder:text-muted focus:border-primary focus:ring-[3px] focus:ring-(--lp-ring)'
+
 const form = reactive({
   name: '',
   dish: '',
@@ -65,7 +67,7 @@ const onSubmit = () => {
           type="text"
           autocomplete="name"
           :placeholder="t('form.namePlaceholder')"
-          class="w-full rounded-lg border border-default bg-(--lp-input) px-3 py-2.5 text-sm text-highlighted outline-none placeholder:text-muted focus:border-primary focus:ring-[3px] focus:ring-(--lp-ring)"
+          :class="fieldClass"
         >
       </div>
 
@@ -81,7 +83,7 @@ const onSubmit = () => {
           v-model="form.dish"
           type="text"
           :placeholder="t('form.dishPlaceholder')"
-          class="w-full rounded-lg border border-default bg-(--lp-input) px-3 py-2.5 text-sm text-highlighted outline-none placeholder:text-muted focus:border-primary focus:ring-[3px] focus:ring-(--lp-ring)"
+          :class="fieldClass"
         >
       </div>
 
@@ -97,7 +99,7 @@ const onSubmit = () => {
           v-model="form.note"
           type="text"
           :placeholder="t('form.notePlaceholder')"
-          class="w-full rounded-lg border border-default bg-(--lp-input) px-3 py-2.5 text-sm text-highlighted outline-none placeholder:text-muted focus:border-primary focus:ring-[3px] focus:ring-(--lp-ring)"
+          :class="fieldClass"
         >
       </div>
 
@@ -118,7 +120,7 @@ const onSubmit = () => {
             type="text"
             inputmode="decimal"
             :placeholder="t('form.pricePlaceholder')"
-            class="w-full rounded-lg border border-default bg-(--lp-input) py-2.5 pr-6 pl-3 text-sm text-highlighted outline-none placeholder:text-muted focus:border-primary focus:ring-[3px] focus:ring-(--lp-ring)"
+            :class="[fieldClass, 'pr-6']"
           >
           <span
             aria-hidden="true"

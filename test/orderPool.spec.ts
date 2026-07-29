@@ -8,7 +8,7 @@ import {
   orderSettingsSchema,
   removeOrderEntry,
   requireOrderPool,
-  setOrderPriceEnabled
+  updateOrderSettings
 } from '../server/utils/orderPool'
 import { redis } from '../server/utils/redis'
 
@@ -44,17 +44,9 @@ const poolWith = (entries: OrderEntry[] = []) => ({
   entries
 })
 
-const entry = (id: string, at = createdAt): OrderEntry => ({
-  id,
-  createdAt: at,
-  person: 'Léa',
-  dish: 'Tiramisu',
-  note: '',
-  cat: 'dessert',
-  price: 0
-})
-
 const draft = { person: 'Léa', dish: 'Tiramisu', note: '', cat: 'dessert' as const, price: 0 }
+
+const entry = (id: string, at = createdAt): OrderEntry => ({ id, createdAt: at, ...draft })
 
 beforeEach(() => {
   vi.clearAllMocks()
@@ -118,9 +110,9 @@ describe('requireOrderPool', () => {
   })
 })
 
-describe('setOrderPriceEnabled', () => {
+describe('updateOrderSettings', () => {
   it('rewrites the meta key without touching the entries', async () => {
-    const pool = await setOrderPriceEnabled(poolWith([entry('keep')]), false)
+    const pool = await updateOrderSettings(poolWith([entry('keep')]), { priceEnabled: false })
 
     expect(setMock).toHaveBeenCalledWith('pool:abcdef', {
       code: 'abcdef',
@@ -129,6 +121,12 @@ describe('setOrderPriceEnabled', () => {
       priceEnabled: false
     }, { exat: deadline })
     expect(pool.entries.map(item => item.id)).toEqual(['keep'])
+  })
+
+  it('leaves the untouched settings alone', async () => {
+    const pool = await updateOrderSettings(poolWith(), {})
+
+    expect(pool.priceEnabled).toBe(true)
   })
 })
 
@@ -203,16 +201,16 @@ describe('orderDraftSchema', () => {
 })
 
 describe('orderSettingsSchema', () => {
-  it('only accepts a boolean flag', () => {
+  it('takes any subset of the settings, as booleans only', () => {
     expect(orderSettingsSchema.parse({ priceEnabled: false })).toEqual({ priceEnabled: false })
+    expect(orderSettingsSchema.parse({})).toEqual({})
     expect(orderSettingsSchema.safeParse({ priceEnabled: 'yes' }).success).toBe(false)
-    expect(orderSettingsSchema.safeParse({}).success).toBe(false)
   })
 })
 
 describe('parseOrderPrice', () => {
-  it('reads a comma as a decimal separator and rounds to the cent', () => {
-    expect(parseOrderPrice('11,567')).toBe(11.57)
+  it('reads a comma as a decimal separator', () => {
+    expect(parseOrderPrice('11,50')).toBe(11.5)
     expect(parseOrderPrice('9')).toBe(9)
   })
 

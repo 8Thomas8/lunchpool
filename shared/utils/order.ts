@@ -25,22 +25,27 @@ export interface OrderEntry extends OrderDraft {
   createdAt: number
 }
 
-export interface OrderPool {
+export interface OrderSettings {
+  priceEnabled: boolean
+}
+
+export const DEFAULT_ORDER_SETTINGS: OrderSettings = {
+  priceEnabled: true
+}
+
+export interface OrderPool extends OrderSettings {
   code: string
   createdAt: number
   expiresAt: number
-  priceEnabled: boolean
   entries: OrderEntry[]
 }
-
-export const roundOrderPrice = (price: number) => Math.round(price * 100) / 100
 
 export const parseOrderPrice = (value: string) => {
   const price = Number.parseFloat(value.replace(',', '.'))
 
   if (!Number.isFinite(price) || price <= 0) return 0
 
-  return roundOrderPrice(Math.min(price, ORDER_MAX_PRICE))
+  return Math.min(price, ORDER_MAX_PRICE)
 }
 
 export const formatOrderPrice = (price: number, locale: string) => {
