@@ -30,9 +30,6 @@ const createOrderEntry = (draft: OrderDraft): OrderEntry => ({
   ...draft
 })
 
-const writeOrderPoolMeta = async (meta: OrderPoolMeta) =>
-  await redis.set(poolKey(meta.code), meta, { exat: deadline(meta) })
-
 export const generateOrderCode = () => Array.from(
   crypto.getRandomValues(new Uint8Array(ORDER_CODE_LENGTH)),
   byte => ORDER_CODE_ALPHABET[byte & 31]
@@ -47,7 +44,7 @@ export const createOrderPool = async () => {
     expiresAt: createdAt + ORDER_TTL_MS
   }
 
-  await writeOrderPoolMeta(meta)
+  await redis.set(poolKey(meta.code), meta, { exat: deadline(meta) })
 
   const pool: OrderPool = { ...meta, entries: [] }
 
@@ -76,7 +73,7 @@ export const requireOrderPool = async (code: string): Promise<OrderPool> => {
 export const updateOrderSettings = async (pool: OrderPool, settings: Partial<OrderSettings>) => {
   const { entries, ...meta } = pool
 
-  await writeOrderPoolMeta({ ...meta, ...settings })
+  await redis.set(poolKey(pool.code), { ...meta, ...settings }, { exat: deadline(pool) })
 
   return { ...pool, ...settings }
 }

@@ -9,7 +9,7 @@ const props = withDefaults(defineProps<{
   presence: 1
 })
 
-const emit = defineEmits<{
+defineEmits<{
   'update:priceEnabled': [priceEnabled: boolean]
 }>()
 
@@ -35,8 +35,6 @@ const countdown = computed(() => {
 })
 
 const countdownLabel = computed(() => countdown.value ?? t('hero.expired'))
-
-const priceToggleTitle = computed(() => props.priceEnabled ? t('hero.priceToggleOff') : t('hero.priceToggleOn'))
 </script>
 
 <template>
@@ -93,10 +91,10 @@ const priceToggleTitle = computed(() => props.priceEnabled ? t('hero.priceToggle
             type="button"
             role="switch"
             :aria-checked="priceEnabled"
-            :title="priceToggleTitle"
+            :title="priceEnabled ? t('hero.priceToggleOff') : t('hero.priceToggleOn')"
             class="inline-flex items-center gap-[9px] rounded-full border border-default bg-(--lp-card) px-3 py-[5px] transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary print:hidden"
             :class="priceEnabled ? 'text-primary' : 'text-muted'"
-            @click="emit('update:priceEnabled', !priceEnabled)"
+            @click="$emit('update:priceEnabled', !priceEnabled)"
           >
             <span class="text-xs font-semibold">{{ t('hero.priceToggle') }}</span>
             <span
