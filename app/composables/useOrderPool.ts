@@ -22,5 +22,9 @@ export const useOrderPool = (code: string) => {
     () => $fetch(`/api/orders/${code}/entries/${id}`, { method: 'DELETE' })
   )
 
-  return { pool, status, error, actionFailed, addEntry, removeEntry, refresh }
+  const setPriceEnabled = (priceEnabled: boolean) => mutate(
+    () => $fetch(`/api/orders/${code}`, { method: 'PATCH', body: { priceEnabled } })
+  )
+
+  return { pool, status, error, actionFailed, addEntry, removeEntry, setPriceEnabled, refresh }
 }

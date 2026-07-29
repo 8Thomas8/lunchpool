@@ -5,7 +5,7 @@ const localePath = useLocalePath()
 const requestUrl = useRequestURL()
 
 const code = route.params.code as string
-const { pool, error, actionFailed, addEntry, removeEntry, refresh } = useOrderPool(code)
+const { pool, error, actionFailed, addEntry, removeEntry, setPriceEnabled, refresh } = useOrderPool(code)
 const { creating, create } = useCreateOrderPool()
 
 useHead({ meta: [{ name: 'robots', content: 'noindex' }] })
@@ -21,12 +21,18 @@ const expired = computed(() => error.value?.statusCode === 404)
       <OrderHero
         :share-url="shareUrl"
         :expires-at="pool.expiresAt"
+        :price-enabled="pool.priceEnabled"
+        @update:price-enabled="setPriceEnabled"
       />
 
-      <OrderAddForm @submit="addEntry" />
+      <OrderAddForm
+        :price-enabled="pool.priceEnabled"
+        @submit="addEntry"
+      />
 
       <OrderEntryList
         :entries="pool.entries"
+        :price-enabled="pool.priceEnabled"
         @remove="removeEntry"
       >
         <p
